@@ -1,0 +1,1799 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Colour Match - Kinder Klub</title>
+  
+  <!-- Font Quicksand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #FFF0F5 0%, #E0F2FE 50%, #F0FDF4 100%);
+      --card-bg: #FFFFFF;
+      --primary-pink: #FF6B8B;
+      --primary-pink-dark: #E11D48;
+      --primary-yellow: #FFD166;
+      --primary-blue: #4EA8DE;
+      --primary-green: #06D6A0;
+      --primary-purple: #9D4EDD;
+      --text-dark: #2D3748;
+      --border-color: #E2E8F0;
+      --radius-lg: 26px;
+      --radius-md: 18px;
+      --shadow-soft: 0 10px 25px -4px rgba(0, 0, 0, 0.07);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: 'Quicksand', sans-serif;
+      touch-action: manipulation;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-x: hidden;
+      padding: 0;
+    }
+
+    /* Container Responsif untuk Telefon, Tablet & Desktop */
+    #app-container {
+      width: 100%;
+      max-width: 680px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 0 35px rgba(0,0,0,0.06);
+      transition: all 0.25s ease;
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 20px 10px;
+      }
+      #app-container {
+        min-height: calc(100vh - 40px);
+        border-radius: 32px;
+        border: 4px solid #FFFFFF;
+        box-shadow: 0 16px 45px rgba(0,0,0,0.08);
+      }
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      width: 100%;
+      padding: clamp(14px, 3vw, 24px);
+      animation: fadeIn 0.25s ease-out;
+      position: relative;
+      z-index: 10;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Top Bar & Kawalan */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+
+    .btn-round {
+      width: clamp(44px, 6vw, 50px);
+      height: clamp(44px, 6vw, 50px);
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 3px solid #CBD5E1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(18px, 2.8vw, 22px);
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #CBD5E1;
+      transition: all 0.12s ease;
+      color: var(--text-dark);
+      flex-shrink: 0;
+    }
+
+    .btn-round:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #CBD5E1;
+    }
+
+    /* Lencana Syiling & Bintang */
+    .stat-badge {
+      background: #FFFFFF;
+      border: 3px solid #E2E8F0;
+      padding: clamp(4px, 1vw, 8px) clamp(10px, 2vw, 16px);
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+      font-size: clamp(13px, 2vw, 16px);
+      box-shadow: 0 4px 0 #E2E8F0;
+    }
+
+    .stat-badge.star { color: #D97706; border-color: #FDE68A; box-shadow: 0 4px 0 #FDE68A; }
+    .stat-badge.coin { color: #B45309; border-color: #FEF08A; box-shadow: 0 4px 0 #FEF08A; }
+
+    /* Ikon SVG Comel */
+    .svg-ico {
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+
+    .svg-ico-sm {
+      width: 24px;
+      height: 24px;
+    }
+
+    .svg-ico-md {
+      width: 34px;
+      height: 34px;
+    }
+
+    .svg-ico-lg {
+      width: 52px;
+      height: 52px;
+    }
+
+    @keyframes gentlePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .anim-pulse {
+      animation: gentlePulse 2.2s ease-in-out infinite;
+    }
+
+    .chibi-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .chibi-container {
+      width: clamp(72px, 14vw, 105px);
+      height: clamp(86px, 17vw, 125px);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    @keyframes mascotFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-5px) rotate(1deg); }
+    }
+
+    @keyframes mascotCelebrate {
+      0% { transform: translateY(0) scale(1); }
+      30% { transform: translateY(-14px) scale(1.1) rotate(-3deg); }
+      60% { transform: translateY(-6px) scale(1.06) rotate(3deg); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    @keyframes mascotThink {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(3deg) translateY(-3px); }
+    }
+
+    @keyframes mascotRetry {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      75% { transform: translateX(3px); }
+    }
+
+    .mascot-idle {
+      animation: mascotFloat 3s ease-in-out infinite;
+    }
+
+    .mascot-happy {
+      animation: mascotCelebrate 0.8s ease-in-out infinite alternate;
+    }
+
+    .mascot-thinking {
+      animation: mascotThink 2.4s ease-in-out infinite;
+    }
+
+    .mascot-retry {
+      animation: mascotRetry 0.4s ease-in-out 2;
+    }
+
+    @keyframes eyeBlink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      96% { transform: scaleY(0.1); }
+    }
+
+    .mascot-blink {
+      transform-origin: 50% 50%;
+      animation: eyeBlink 3.6s infinite;
+    }
+
+    @keyframes sparkleSpin {
+      0% { transform: scale(0.8) rotate(0deg); opacity: 0.4; }
+      50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+      100% { transform: scale(0.8) rotate(360deg); opacity: 0.4; }
+    }
+
+    .sparkle-fx {
+      transform-origin: center;
+      animation: sparkleSpin 2s linear infinite;
+    }
+
+    .speech-bubble {
+      background: white;
+      border: 3px solid #CBD5E1;
+      border-radius: 18px;
+      padding: clamp(8px, 1.8vw, 12px) clamp(14px, 2.5vw, 20px);
+      font-size: clamp(14px, 2.2vw, 17px);
+      font-weight: 800;
+      position: relative;
+      box-shadow: 0 4px 0 #CBD5E1;
+      max-width: clamp(200px, 48vw, 320px);
+    }
+
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      left: -11px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 6px 11px 6px 0;
+      border-style: solid;
+      border-color: transparent #CBD5E1 transparent transparent;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: clamp(14px, 2.5vw, 22px);
+      border: 3px solid #F1F5F9;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: var(--primary-pink);
+      color: white;
+      border: none;
+      padding: clamp(12px, 2.2vw, 16px) clamp(18px, 3vw, 28px);
+      border-radius: 40px;
+      font-size: clamp(16px, 2.4vw, 20px);
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 5px 0 var(--primary-pink-dark);
+      transition: all 0.12s ease;
+      width: 100%;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .btn-primary:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 var(--primary-pink-dark);
+    }
+
+    .btn-secondary {
+      background: var(--primary-blue);
+      box-shadow: 0 5px 0 #0284C7;
+    }
+    .btn-secondary:active { box-shadow: 0 2px 0 #0284C7; }
+
+    .btn-green {
+      background: var(--primary-green);
+      box-shadow: 0 5px 0 #059669;
+    }
+    .btn-green:active { box-shadow: 0 2px 0 #059669; }
+
+    .btn-yellow {
+      background: var(--primary-yellow);
+      color: #78350F;
+      box-shadow: 0 5px 0 #D97706;
+    }
+    .btn-yellow:active { box-shadow: 0 2px 0 #D97706; }
+
+    .lang-toggle {
+      display: flex;
+      background: #E2E8F0;
+      border-radius: 20px;
+      padding: 3px;
+      width: fit-content;
+      margin: 0 auto 10px auto;
+    }
+
+    .lang-btn {
+      padding: 5px 14px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 800;
+      font-size: clamp(12px, 1.8vw, 14px);
+      cursor: pointer;
+      background: transparent;
+      color: #64748B;
+    }
+
+    .lang-btn.active {
+      background: #FFFFFF;
+      color: var(--primary-pink);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Penunjuk Warna */
+    .target-box {
+      background: white;
+      border-radius: 22px;
+      padding: clamp(10px, 2vw, 16px);
+      border: 3px solid #E2E8F0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .color-pill {
+      width: clamp(95px, 18vw, 140px);
+      height: clamp(44px, 7vw, 60px);
+      border-radius: 30px;
+      border: 3px solid #334155;
+      margin: 6px 0;
+      box-shadow: inset 0 -4px 0 rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: gentlePulse 2s infinite ease-in-out;
+    }
+
+    .target-text {
+      font-size: clamp(20px, 3.4vw, 28px);
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: 0.5px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(10px, 2.5vw, 18px);
+      width: 100%;
+      max-width: 540px;
+      margin: auto auto;
+    }
+
+    .option-card {
+      background: white;
+      border-radius: clamp(18px, 3.2vw, 26px);
+      border: 3px solid #E2E8F0;
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(10px, 2vw, 20px);
+      cursor: pointer;
+      box-shadow: 0 6px 0 #E2E8F0, var(--shadow-soft);
+      transition: transform 0.12s ease, border-color 0.12s ease;
+      position: relative;
+    }
+
+    .option-card:active {
+      transform: translateY(3px);
+      box-shadow: 0 3px 0 #E2E8F0;
+    }
+
+    .option-card.correct-anim {
+      animation: celebrateBounce 0.7s ease forwards;
+      border-color: #10B981 !important;
+      box-shadow: 0 6px 0 #10B981 !important;
+      z-index: 20;
+    }
+
+    .option-card.wrong-anim {
+      animation: gentleShake 0.4s ease;
+      border-color: #EF4444 !important;
+      box-shadow: 0 6px 0 #EF4444 !important;
+    }
+
+    @keyframes celebrateBounce {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.12) rotate(-3deg); }
+      50% { transform: scale(1.08) rotate(3deg); }
+      70% { transform: scale(1.1) rotate(-1deg); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes gentleShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    /* Borang Input */
+    .input-field {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 2px solid #CBD5E1;
+      font-size: clamp(14px, 2vw, 17px);
+      font-weight: 700;
+      margin-bottom: 4px;
+      outline: none;
+      text-transform: uppercase;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary-pink);
+    }
+
+    .field-hint {
+      font-size: clamp(11px, 1.5vw, 13px);
+      color: #0284C7;
+      font-weight: 700;
+      text-align: left;
+      margin-bottom: 12px;
+    }
+
+    .status-msg {
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .status-msg.success { background: #D1FAE5; color: #047857; }
+    .status-msg.info { background: #E0F2FE; color: #0369A1; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .item-card {
+      background: white;
+      border-radius: 18px;
+      padding: 12px;
+      border: 2px solid #E2E8F0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 4px 0 #F1F5F9;
+    }
+
+    .item-card.locked {
+      opacity: 0.45;
+      filter: grayscale(1);
+    }
+
+    .footer-text {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #94A3B8;
+      padding: 12px 0;
+      margin-top: auto;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Reusable Cute Kawaii SVGs Sprite Sheet -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none;" aria-hidden="true">
+  <defs>
+    <linearGradient id="star-gold-body" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFF59D" />
+      <stop offset="35%" stop-color="#FFD54F" />
+      <stop offset="75%" stop-color="#FFB300" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+
+    <radialGradient id="star-glow" cx="45%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
+      <stop offset="40%" stop-color="#FFF176" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#FFB300" stop-opacity="0" />
+    </radialGradient>
+
+    <linearGradient id="coin-gold-body" x1="15%" y1="0%" x2="85%" y2="100%">
+      <stop offset="0%" stop-color="#FFFDE7" />
+      <stop offset="25%" stop-color="#FFF176" />
+      <stop offset="65%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+
+    <linearGradient id="coin-inner-body" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+
+    <linearGradient id="coin-edge-3d" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#92400E" />
+    </linearGradient>
+
+    <linearGradient id="coin-rim-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF9C3" />
+      <stop offset="50%" stop-color="#FDE047" />
+      <stop offset="100%" stop-color="#B45309" />
+    </linearGradient>
+
+    <linearGradient id="trophy-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+
+    <!-- Cute Chibi Star with Rich Color Fill, Sparkle Eyes & Rosy Cheeks -->
+    <g id="svg-star">
+      <path d="M 50 6 C 53 6 58 17 62 27 C 66 37 78 38 86 42 C 94 46 93 54 86 60 C 80 66 77 77 80 86 C 83 94 77 98 69 94 C 60 90 54 84 50 85 C 46 84 40 90 31 94 C 23 98 17 94 20 86 C 23 77 20 66 14 60 C 7 54 6 46 14 42 C 22 38 34 37 38 27 C 42 17 47 6 50 6 Z" 
+            fill="url(#star-gold-body)" stroke="#6B2D02" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>
+      
+      <path d="M 22 83 C 31 89 40 83 50 84 C 60 83 69 89 78 83 C 76 87 74 91 69 94 C 60 90 54 84 50 85 C 46 84 40 90 31 94 C 26 91 24 87 22 83 Z" 
+            fill="#EA580C" opacity="0.45"/>
+      
+      <ellipse cx="50" cy="38" rx="22" ry="16" fill="url(#star-glow)"/>
+
+      <path d="M 50 11 C 51 11 54 18 56 24 C 53 21 47 21 44 24 C 46 18 49 11 50 11 Z" fill="#FFFFFF" opacity="0.8"/>
+      <ellipse cx="27" cy="41" rx="3.5" ry="6" fill="#FFFFFF" opacity="0.6" transform="rotate(-35 27 41)"/>
+
+      <ellipse cx="39" cy="51" rx="5" ry="7" fill="#3D1A04"/>
+      <ellipse cx="61" cy="51" rx="5" ry="7" fill="#3D1A04"/>
+      <circle cx="37" cy="47.5" r="2.3" fill="#FFFFFF"/>
+      <circle cx="59" cy="47.5" r="2.3" fill="#FFFFFF"/>
+      <circle cx="41.5" cy="53.5" r="1.3" fill="#FFFFFF"/>
+      <circle cx="63.5" cy="53.5" r="1.3" fill="#FFFFFF"/>
+
+      <ellipse cx="29" cy="58" rx="6.5" ry="3.8" fill="#FF4D6D" opacity="0.85"/>
+      <ellipse cx="71" cy="58" rx="6.5" ry="3.8" fill="#FF4D6D" opacity="0.85"/>
+      <circle cx="30" cy="57" r="1.3" fill="#FFFFFF" opacity="0.8"/>
+      <circle cx="70" cy="57" r="1.3" fill="#FFFFFF" opacity="0.8"/>
+
+      <path d="M 45 56 Q 50 64 55 56 Q 50 58 45 56 Z" fill="#9F1239" stroke="#3D1A04" stroke-width="1.8" stroke-linejoin="round"/>
+      <path d="M 47 60 Q 50 64 53 60 Z" fill="#FB7185"/>
+
+      <polygon points="76,26 78,31 83,33 78,35 76,40 74,35 69,33 74,31" fill="#FFFFFF" opacity="0.95"/>
+    </g>
+
+    <!-- Cute Chibi Coin with 3D Edge, Golden Fill & Adorable Face -->
+    <g id="svg-coin">
+      <ellipse cx="50" cy="54" rx="42" ry="40" fill="url(#coin-edge-3d)" stroke="#6B2D02" stroke-width="4.5"/>
+      <circle cx="50" cy="47" r="41" fill="url(#coin-gold-body)" stroke="#6B2D02" stroke-width="4.5"/>
+      <circle cx="50" cy="47" r="32" fill="url(#coin-inner-body)" stroke="url(#coin-rim-grad)" stroke-width="3" stroke-dasharray="5 2.5"/>
+
+      <path d="M 23 30 C 31 20 45 16 62 19 C 55 21 40 24 30 33 C 25 38 23 45 23 45 C 21 40 22 35 23 30 Z" fill="#FFFFFF" opacity="0.7"/>
+
+      <ellipse cx="40" cy="46" rx="5" ry="7" fill="#3D1A04"/>
+      <ellipse cx="60" cy="46" rx="5" ry="7" fill="#3D1A04"/>
+      <circle cx="38" cy="42.5" r="2.3" fill="#FFFFFF"/>
+      <circle cx="58" cy="42.5" r="2.3" fill="#FFFFFF"/>
+      <circle cx="42" cy="48.5" r="1.3" fill="#FFFFFF"/>
+      <circle cx="62" cy="48.5" r="1.3" fill="#FFFFFF"/>
+
+      <ellipse cx="30" cy="53" rx="5.5" ry="3.2" fill="#FF4D6D" opacity="0.85"/>
+      <ellipse cx="70" cy="53" rx="5.5" ry="3.2" fill="#FF4D6D" opacity="0.85"/>
+      <circle cx="31" cy="52" r="1.2" fill="#FFFFFF" opacity="0.8"/>
+      <circle cx="69" cy="52" r="1.2" fill="#FFFFFF" opacity="0.8"/>
+
+      <path d="M 46 51 Q 50 58 54 51" stroke="#3D1A04" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+      <polygon points="70,22 72,27 77,29 72,31 70,36 68,31 63,29 68,27" fill="#FFFFFF" opacity="0.95"/>
+    </g>
+
+    <!-- Cute Trophy -->
+    <g id="svg-trophy">
+      <path d="M 24 30 C 8 30 8 52 26 56" stroke="#78350F" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <path d="M 76 30 C 92 30 92 52 74 56" stroke="#78350F" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <path d="M 24 20 L 76 20 L 70 58 C 68 70 32 70 30 58 Z" fill="url(#trophy-gold)" stroke="#78350F" stroke-width="4.5" stroke-linejoin="round"/>
+      <path d="M 44 68 L 56 68 L 56 78 L 44 78 Z" fill="#D97706" stroke="#78350F" stroke-width="4"/>
+      <rect x="28" y="78" width="44" height="12" rx="4" fill="#FDE047" stroke="#78350F" stroke-width="4"/>
+      <circle cx="43" cy="40" r="3" fill="#451A03"/>
+      <circle cx="57" cy="40" r="3" fill="#451A03"/>
+      <ellipse cx="37" cy="46" rx="3" ry="1.5" fill="#FF8A80" opacity="0.8"/>
+      <ellipse cx="63" cy="46" rx="3" ry="1.5" fill="#FF8A80" opacity="0.8"/>
+      <path d="M 47 46 Q 50 50 53 46" stroke="#451A03" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <polygon points="32,26 34,30 38,32 34,34 32,38 30,34 26,32 30,30" fill="#FFFFFF" opacity="0.8"/>
+    </g>
+
+    <!-- Cute Rainbow Badge -->
+    <g id="svg-rainbow">
+      <path d="M 20 70 A 30 30 0 0 1 80 70" stroke="#FF6B8B" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <path d="M 28 70 A 22 22 0 0 1 72 70" stroke="#FFD166" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <path d="M 35 70 A 15 15 0 0 1 65 70" stroke="#06D6A0" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <ellipse cx="24" cy="72" rx="14" ry="10" fill="#FFFFFF" stroke="#334155" stroke-width="3.5"/>
+      <ellipse cx="76" cy="72" rx="14" ry="10" fill="#FFFFFF" stroke="#334155" stroke-width="3.5"/>
+      <circle cx="21" cy="71" r="2" fill="#334155"/>
+      <circle cx="27" cy="71" r="2" fill="#334155"/>
+      <path d="M 23 74 Q 24 76 25 74" stroke="#334155" stroke-width="1.8" fill="none"/>
+      <circle cx="73" cy="71" r="2" fill="#334155"/>
+      <circle cx="79" cy="71" r="2" fill="#334155"/>
+      <path d="M 75 74 Q 76 76 77 74" stroke="#334155" stroke-width="1.8" fill="none"/>
+    </g>
+
+    <!-- Cute Target Activity Badge -->
+    <g id="svg-target">
+      <circle cx="50" cy="50" r="42" fill="#FF6B8B" stroke="#334155" stroke-width="4"/>
+      <circle cx="50" cy="50" r="30" fill="#FFFFFF" stroke="#334155" stroke-width="3"/>
+      <circle cx="50" cy="50" r="18" fill="#4EA8DE" stroke="#334155" stroke-width="3"/>
+      <circle cx="50" cy="50" r="8" fill="#FFD166" stroke="#334155" stroke-width="2.5"/>
+      <circle cx="47" cy="49" r="1.5" fill="#334155"/>
+      <circle cx="53" cy="49" r="1.5" fill="#334155"/>
+      <path d="M 49 53 Q 50 55 51 53" stroke="#334155" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    </g>
+
+    <!-- Cute Gift Symbol -->
+    <g id="svg-gift">
+      <rect x="20" y="40" width="60" height="48" rx="8" fill="#FF6B8B" stroke="#334155" stroke-width="4.5"/>
+      <rect x="15" y="28" width="70" height="16" rx="6" fill="#FF8FA3" stroke="#334155" stroke-width="4.5"/>
+      <rect x="44" y="28" width="12" height="60" fill="#FFD166" stroke="#334155" stroke-width="3"/>
+      <path d="M 35 18 C 30 8 46 12 48 28 C 42 16 38 16 35 18 Z" fill="#FFD166" stroke="#334155" stroke-width="3"/>
+      <path d="M 65 18 C 70 8 54 12 52 28 C 58 16 62 16 65 18 Z" fill="#FFD166" stroke="#334155" stroke-width="3"/>
+      <circle cx="34" cy="62" r="3" fill="#334155"/>
+      <circle cx="66" cy="62" r="3" fill="#334155"/>
+      <ellipse cx="28" cy="67" rx="3" ry="1.5" fill="#FF4D6D" opacity="0.6"/>
+      <ellipse cx="72" cy="67" rx="3" ry="1.5" fill="#FF4D6D" opacity="0.6"/>
+      <path d="M 47 64 Q 50 68 53 64" stroke="#334155" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    </g>
+
+    <!-- Cute Palette Symbol -->
+    <g id="svg-palette">
+      <path d="M 50 15 C 28 15 15 32 15 54 C 15 72 30 85 48 85 C 56 85 62 80 62 72 C 62 67 58 64 58 58 C 58 52 64 48 70 48 C 80 48 85 40 85 30 C 85 18 70 15 50 15 Z" 
+            fill="#FFF5EB" stroke="#334155" stroke-width="4.5"/>
+      <circle cx="34" cy="32" r="7" fill="#FF4D4D"/>
+      <circle cx="52" cy="27" r="7" fill="#FFD166"/>
+      <circle cx="70" cy="34" r="7" fill="#4EA8DE"/>
+      <circle cx="30" cy="52" r="7" fill="#06D6A0"/>
+      <ellipse cx="44" cy="66" rx="6" ry="7" fill="#E2E8F0" stroke="#334155" stroke-width="3"/>
+    </g>
+  </defs>
+</svg>
+
+<div id="app-container">
+
+  <!-- SKRIN: PERSEDIAAN IBU BAPA -->
+  <div id="screen-parent-setup" class="screen">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="lang-bm-setup-btn" onclick="setLanguage('bm')">BM</button>
+      <button class="lang-btn" id="lang-en-setup-btn" onclick="setLanguage('en')">EN</button>
+    </div>
+
+    <div class="card">
+      <div style="margin-bottom: 6px;">
+        <svg class="svg-ico svg-ico-lg anim-pulse" viewBox="0 0 100 100"><use href="#svg-palette" /></svg>
+      </div>
+      <h2 id="txt-parent-title" style="font-size: clamp(19px, 3vw, 24px); font-weight: 800; margin-bottom: 4px;">Persediaan Ibu Bapa</h2>
+      <p id="txt-parent-desc" style="font-size: clamp(12px, 1.8vw, 14px); color: #64748B; margin-bottom: 14px;">Sila masukkan maklumat profil anda di bawah:</p>
+
+      <div id="profile-status" class="status-msg"></div>
+
+      <label id="lbl-child-name" style="display:block; text-align:left; font-weight:800; font-size:12px; margin-bottom:4px; color:#475569;">NAMA ANAK</label>
+      <input type="text" id="input-child-name" class="input-field" placeholder="Cth: AISYAH" maxlength="20" value="">
+      <p id="txt-child-name-hint" class="field-hint">📌 Sila masukkan nama anak anda.</p>
+
+      <label id="lbl-family-code" style="display:block; text-align:left; font-weight:800; font-size:12px; margin-bottom:4px; color:#475569;">FAMILY CODE</label>
+      <input type="text" id="input-family-code" class="input-field" placeholder="Cth: KINDER123" maxlength="12" value="">
+      <p id="txt-family-code-hint" class="field-hint" style="margin-bottom: 16px;">📌 Sila masukkan Family Code untuk menyimpan rekod.</p>
+
+      <button id="btn-save-profile" class="btn-primary" onclick="saveParentProfile()">Simpan Profil</button>
+      <button id="btn-profile-back" class="btn-primary btn-secondary" style="font-size: 15px; padding: 10px;" onclick="showScreen('screen-home')">Kembali</button>
+    </div>
+
+    <div class="footer-text">Kinder Klub | All Rights Reserved</div>
+  </div>
+
+  <!-- SKRIN: UTAMA (HOME) -->
+  <div id="screen-home" class="screen active">
+    <div class="top-bar">
+      <div class="stat-badge star">
+        <svg class="svg-ico svg-ico-sm anim-pulse" viewBox="0 0 100 100"><use href="#svg-star" /></svg>
+        <span id="home-stars">0</span>
+      </div>
+      <div class="stat-badge coin">
+        <svg class="svg-ico svg-ico-sm anim-pulse" viewBox="0 0 100 100"><use href="#svg-coin" /></svg>
+        <span id="home-coins">0</span>
+      </div>
+      <button class="btn-round" onclick="toggleAudio()" id="btn-audio-toggle">🔊</button>
+    </div>
+
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="lang-bm-btn" onclick="setLanguage('bm')">BM</button>
+      <button class="lang-btn" id="lang-en-btn" onclick="setLanguage('en')">EN</button>
+    </div>
+
+    <div class="card" style="background: linear-gradient(180deg, #FFFFFF 0%, #FFF5F7 100%);">
+      <h1 id="main-title" style="font-size: clamp(24px, 4.5vw, 34px); font-weight: 800; color: var(--primary-pink); margin-bottom: 2px;">Colour Match</h1>
+      <p id="txt-home-subtitle" style="font-size: clamp(13px, 2vw, 16px); font-weight: 700; color: #64748B; margin-bottom: 8px;">Jom Cari Warna!</p>
+      
+      <div class="chibi-wrapper">
+        <div id="chibi-home-avatar" class="chibi-container mascot-idle"></div>
+        <div class="speech-bubble" id="txt-home-welcome">Selamat datang!</div>
+      </div>
+    </div>
+
+    <div style="width: 100%; display: flex; flex-direction: column; gap: 6px;">
+      <button class="btn-primary" onclick="startMode('5')">
+        <span id="txt-mode-5">5 AKTIVITI</span>
+        <svg class="svg-ico svg-ico-sm" viewBox="0 0 100 100"><use href="#svg-star" /></svg>
+      </button>
+      <button class="btn-primary btn-secondary" onclick="startMode('10')">
+        <span id="txt-mode-10">10 AKTIVITI</span>
+        <svg class="svg-ico svg-ico-sm" viewBox="0 0 100 100"><use href="#svg-star" /></svg>
+      </button>
+      <button class="btn-primary btn-green" onclick="startMode('free')">
+        <span id="txt-mode-free">MAIN BEBAS</span>
+        <svg class="svg-ico svg-ico-sm" viewBox="0 0 100 100"><use href="#svg-target" /></svg>
+      </button>
+    </div>
+
+    <div class="grid-2" style="margin-top: 8px;">
+      <button class="btn-primary btn-yellow" style="font-size: 14px; padding: 11px;" onclick="showScreen('screen-scoreboard')">
+        <svg class="svg-ico svg-ico-sm" viewBox="0 0 100 100"><use href="#svg-trophy" /></svg>
+        <span id="txt-btn-scoreboard">Markah</span>
+      </button>
+      <button class="btn-primary btn-yellow" style="font-size: 14px; padding: 11px;" onclick="showScreen('screen-daily-gift')">
+        <svg class="svg-ico svg-ico-sm" viewBox="0 0 100 100"><use href="#svg-gift" /></svg>
+        <span id="txt-btn-daily">Hadiah</span>
+      </button>
+    </div>
+
+    <div class="grid-2" style="margin-top: 4px;">
+      <button class="btn-primary" style="background:#8B5CF6; box-shadow:0 4px 0 #6D28D9; font-size: 14px; padding: 11px;" onclick="showScreen('screen-collection')">
+        <svg class="svg-ico svg-ico-sm" viewBox="0 0 100 100"><use href="#svg-rainbow" /></svg>
+        <span id="txt-btn-collection">Galeri</span>
+      </button>
+      <button class="btn-primary" style="background:#64748B; box-shadow:0 4px 0 #475569; font-size: 14px; padding: 11px;" onclick="showScreen('screen-parent-setup')">
+        <svg class="svg-ico svg-ico-sm" viewBox="0 0 100 100"><use href="#svg-palette" /></svg>
+        <span id="txt-btn-switch">Profil</span>
+      </button>
+    </div>
+
+    <div class="footer-text">Kinder Klub | All Rights Reserved</div>
+  </div>
+
+  <!-- SKRIN: PERMAINAN (GAMEPLAY) -->
+  <div id="screen-gameplay" class="screen">
+    <div class="top-bar">
+      <button class="btn-round" onclick="showScreen('screen-home')">🏠</button>
+      <div class="stat-badge" id="activity-progress-badge" style="color: var(--primary-purple); border-color: #E9D5FF; box-shadow: 0 4px 0 #E9D5FF;">
+        <span id="txt-progress-label">AKTIVITI</span> <span id="current-progress-text">1 / 5</span>
+      </div>
+      <div class="stat-badge star">
+        <svg class="svg-ico svg-ico-sm anim-pulse" viewBox="0 0 100 100"><use href="#svg-star" /></svg>
+        <span id="game-stars">0</span>
+      </div>
+      <div class="stat-badge coin">
+        <svg class="svg-ico svg-ico-sm anim-pulse" viewBox="0 0 100 100"><use href="#svg-coin" /></svg>
+        <span id="game-coins">0</span>
+      </div>
+    </div>
+
+    <div class="chibi-wrapper">
+      <div id="chibi-game-avatar" class="chibi-container mascot-thinking"></div>
+      <div class="speech-bubble" id="chibi-speech">Cari warna MERAH!</div>
+    </div>
+
+    <div class="target-box">
+      <div id="target-color-indicator" class="color-pill"></div>
+      <div id="target-color-name" class="target-text">MERAH</div>
+    </div>
+
+    <div id="options-container" class="options-grid">
+      <!-- Kad Pilihan Objek Dijana Di Sini -->
+    </div>
+  </div>
+
+  <!-- SKRIN: RINGKASAN SESI -->
+  <div id="screen-summary" class="screen">
+    <div class="card" style="margin-top: auto; margin-bottom: auto; text-align: center; padding: 20px;">
+      <div style="margin-bottom: 8px;">
+        <svg class="svg-ico svg-ico-lg anim-pulse" viewBox="0 0 100 100"><use href="#svg-trophy" /></svg>
+      </div>
+      <h2 id="txt-summary-title" style="font-size: clamp(22px, 3.5vw, 28px); font-weight: 800; color: var(--primary-pink); margin-bottom: 8px;">SESI SELESAI!</h2>
+      
+      <div class="card" style="background: #F8FAFC; border-color: #E2E8F0; margin-bottom: 14px; padding: 14px;">
+        <p style="font-size: clamp(14px, 2vw, 16px); font-weight: 700; color: #64748B; margin-bottom: 8px;">
+          <span id="txt-summary-activities">Aktiviti Selesai</span>: <strong id="summary-count" style="color: var(--text-dark);">5</strong>
+        </p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: clamp(16px, 2.3vw, 20px); font-weight: 800; color: #D97706; margin-bottom: 6px;">
+          <svg class="svg-ico svg-ico-sm anim-pulse" viewBox="0 0 100 100"><use href="#svg-star" /></svg>
+          +<span id="summary-stars">5</span> <span id="txt-summary-stars-unit">Bintang</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: clamp(16px, 2.3vw, 20px); font-weight: 800; color: #B45309;">
+          <svg class="svg-ico svg-ico-sm anim-pulse" viewBox="0 0 100 100"><use href="#svg-coin" /></svg>
+          +<span id="summary-coins">25</span> <span id="txt-summary-coins-unit">Syiling</span>
+        </div>
+      </div>
+
+      <button id="btn-play-again" class="btn-primary btn-green" onclick="restartCurrentMode()">Main Lagi</button>
+      <button id="btn-summary-home" class="btn-primary btn-secondary" onclick="showScreen('screen-home')">Kembali</button>
+    </div>
+
+    <div class="footer-text">Kinder Klub | All Rights Reserved</div>
+  </div>
+
+  <!-- SKRIN: MARKAH KELUARGA -->
+  <div id="screen-scoreboard" class="screen">
+    <div class="top-bar">
+      <button class="btn-round" onclick="showScreen('screen-home')">⬅️</button>
+      <h2 id="txt-scoreboard-title" style="font-size: clamp(18px, 2.5vw, 22px); font-weight: 800;">Markah Keluarga</h2>
+      <div style="width: 44px;"></div>
+    </div>
+
+    <div class="card">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px;">
+        <div id="score-avatar-badge" style="width: 46px; height: 46px; border-radius: 50%; background: #FFE0E9; display:flex; align-items:center; justify-content:center;">
+          <svg class="svg-ico svg-ico-md" viewBox="0 0 100 100"><use href="#svg-palette" /></svg>
+        </div>
+        <div style="text-align: left;">
+          <div id="score-child-name" style="font-size: clamp(18px, 2.5vw, 22px); font-weight: 800; color: var(--primary-pink);">Si Comel</div>
+          <div id="score-family-code" style="font-size: 12px; font-weight: 700; color: #94A3B8;">Code: -</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="item-card">
+          <svg class="svg-ico svg-ico-md anim-pulse" viewBox="0 0 100 100"><use href="#svg-star" /></svg>
+          <span id="txt-score-stars-label" style="font-size: 12px; font-weight: 700; color: #64748B;">Bintang</span>
+          <strong id="score-stars-val" style="font-size: clamp(18px, 2.5vw, 22px); color: #D97706;">0</strong>
+        </div>
+        <div class="item-card">
+          <svg class="svg-ico svg-ico-md anim-pulse" viewBox="0 0 100 100"><use href="#svg-coin" /></svg>
+          <span id="txt-score-coins-label" style="font-size: 12px; font-weight: 700; color: #64748B;">Syiling</span>
+          <strong id="score-coins-val" style="font-size: clamp(18px, 2.5vw, 22px); color: #B45309;">0</strong>
+        </div>
+        <div class="item-card">
+          <svg class="svg-ico svg-ico-md" viewBox="0 0 100 100"><use href="#svg-target" /></svg>
+          <span id="txt-score-activities-label" style="font-size: 12px; font-weight: 700; color: #64748B;">Aktiviti</span>
+          <strong id="score-activities-val" style="font-size: clamp(18px, 2.5vw, 22px); color: #2D3748;">0</strong>
+        </div>
+        <div class="item-card">
+          <svg class="svg-ico svg-ico-md" viewBox="0 0 100 100"><use href="#svg-rainbow" /></svg>
+          <span id="txt-score-discovered-label" style="font-size: 12px; font-weight: 700; color: #64748B;">Warna</span>
+          <strong id="score-discovered-val" style="font-size: clamp(18px, 2.5vw, 22px); color: #9D4EDD;">0 / 7</strong>
+        </div>
+      </div>
+    </div>
+
+    <button id="btn-score-back" class="btn-primary btn-secondary" style="margin-top: auto;" onclick="showScreen('screen-home')">Kembali</button>
+    <div class="footer-text">Kinder Klub | All Rights Reserved</div>
+  </div>
+
+  <!-- SKRIN: HADIAH HARIAN -->
+  <div id="screen-daily-gift" class="screen">
+    <div class="top-bar">
+      <button class="btn-round" onclick="showScreen('screen-home')">⬅️</button>
+      <h2 id="txt-daily-title" style="font-size: clamp(18px, 2.5vw, 22px); font-weight: 800;">Hadiah Harian</h2>
+      <div style="width: 44px;"></div>
+    </div>
+
+    <div class="card" style="margin-top: auto; margin-bottom: auto; padding: 22px;">
+      <div style="margin-bottom: 12px;">
+        <svg class="svg-ico svg-ico-lg anim-pulse" style="width: 80px; height: 80px;" viewBox="0 0 100 100"><use href="#svg-gift" /></svg>
+      </div>
+      <h3 id="txt-daily-subtitle" style="font-size: clamp(19px, 2.8vw, 23px); font-weight: 800; margin-bottom: 6px;">Buka Hadiah Anda!</h3>
+      <p id="txt-daily-desc" style="font-size: clamp(12px, 1.8vw, 14px); color: #64748B; margin-bottom: 18px;">Dapatkan bonus syiling dan bintang setiap hari.</p>
+      
+      <button id="btn-claim-daily" class="btn-primary btn-yellow" onclick="claimDailyGift()">
+        <svg class="svg-ico svg-ico-sm" viewBox="0 0 100 100"><use href="#svg-gift" /></svg>
+        <span id="txt-claim-daily-label">Tuntut Hadiah</span>
+      </button>
+      <div id="daily-claimed-msg" style="display:none; font-weight:800; color:#059669; font-size:15px; margin-top:10px;">
+        ✓ Sudah Dituntut Hari Ini!
+      </div>
+    </div>
+
+    <div class="footer-text">Kinder Klub | All Rights Reserved</div>
+  </div>
+
+  <!-- SKRIN: GALERI -->
+  <div id="screen-collection" class="screen">
+    <div class="top-bar">
+      <button class="btn-round" onclick="showScreen('screen-home')">⬅️</button>
+      <h2 id="txt-collection-title" style="font-size: clamp(18px, 2.5vw, 22px); font-weight: 800;">Galeri Warna</h2>
+      <div style="width: 44px;"></div>
+    </div>
+
+    <div id="collection-grid" class="grid-2" style="margin-bottom: 16px;">
+      <!-- Kad Galeri Warna Dijana Di Sini -->
+    </div>
+
+    <button id="btn-collection-back" class="btn-primary btn-secondary" style="margin-top: auto;" onclick="showScreen('screen-home')">Kembali</button>
+    <div class="footer-text">Kinder Klub | All Rights Reserved</div>
+  </div>
+
+</div>
+
+<script>
+  /* ===================================================
+     CUTE ANIMATED CHIBI MASCOT GENERATOR
+     =================================================== */
+  function getChibiAvatarSvg(expression = 'idle') {
+    const stroke = '#2D3748';
+    const strokeW = '4';
+
+    let eyesMarkup = `
+      <g class="mascot-blink">
+        <circle cx="38" cy="50" r="5" fill="${stroke}"/>
+        <circle cx="62" cy="50" r="5" fill="${stroke}"/>
+        <circle cx="36" cy="48" r="1.8" fill="#FFFFFF"/>
+        <circle cx="60" cy="48" r="1.8" fill="#FFFFFF"/>
+        <circle cx="40" cy="52" r="1" fill="#FFFFFF"/>
+        <circle cx="64" cy="52" r="1" fill="#FFFFFF"/>
+      </g>
+    `;
+
+    let mouthMarkup = `<path d="M 46 60 Q 50 65 54 60" stroke="${stroke}" stroke-width="3" stroke-linecap="round" fill="none"/>`;
+    let sparklesMarkup = '';
+
+    if (expression === 'happy') {
+      eyesMarkup = `
+        <path d="M 32 50 Q 38 42 44 50" stroke="${stroke}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M 56 50 Q 62 42 68 50" stroke="${stroke}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      `;
+      mouthMarkup = `<path d="M 43 58 Q 50 71 57 58 Z" fill="#FF6B8B" stroke="${stroke}" stroke-width="2.5"/>`;
+      sparklesMarkup = `
+        <g class="sparkle-fx">
+          <polygon points="12,24 14,28 18,30 14,32 12,36 10,32 6,30 10,28" fill="#F59E0B" />
+          <polygon points="86,22 88,26 92,28 88,30 86,34 84,30 80,28 84,26" fill="#F59E0B" />
+          <polygon points="50,4 52,8 56,10 52,12 50,16 48,12 44,10 48,8" fill="#FFD166" />
+        </g>
+      `;
+    } else if (expression === 'thinking') {
+      eyesMarkup = `
+        <g class="mascot-blink">
+          <circle cx="40" cy="48" r="4.5" fill="${stroke}"/>
+          <circle cx="64" cy="48" r="4.5" fill="${stroke}"/>
+          <circle cx="42" cy="46" r="1.6" fill="#FFFFFF"/>
+          <circle cx="66" cy="46" r="1.6" fill="#FFFFFF"/>
+        </g>
+      `;
+      mouthMarkup = `<ellipse cx="50" cy="62" rx="3" ry="3.5" fill="#FF8A80" stroke="${stroke}" stroke-width="2"/>`;
+    } else if (expression === 'retry') {
+      eyesMarkup = `
+        <circle cx="38" cy="50" r="4.5" fill="${stroke}"/>
+        <circle cx="62" cy="50" r="4.5" fill="${stroke}"/>
+        <circle cx="36" cy="48" r="1.5" fill="#FFFFFF"/>
+        <circle cx="60" cy="48" r="1.5" fill="#FFFFFF"/>
+      `;
+      mouthMarkup = `<path d="M 45 62 Q 50 58 55 62" stroke="${stroke}" stroke-width="3" stroke-linecap="round" fill="none"/>`;
+      sparklesMarkup = `<path d="M 74 38 Q 78 33 76 43 Z" fill="#60A5FA"/>`;
+    }
+
+    return `
+      <svg viewBox="0 0 100 115" width="100%" height="100%">
+        ${sparklesMarkup}
+        <path d="M 28 78 Q 50 70 72 78 L 76 104 L 24 104 Z" fill="#FFD166" stroke="${stroke}" stroke-width="${strokeW}"/>
+        <path d="M 38 77 L 50 85 L 62 77 Z" fill="#FF6B8B" stroke="${stroke}" stroke-width="2"/>
+        <path d="M 18 36 Q 50 6 82 36 Z" fill="#FF6B8B" stroke="${stroke}" stroke-width="${strokeW}"/>
+        <ellipse cx="50" cy="36" rx="38" ry="7" fill="#E11D48"/>
+        <polygon points="50,18 52,22 56,23 53,26 54,30 50,28 46,30 47,26 44,23 48,22" fill="#FFD166" stroke="#451A03" stroke-width="1"/>
+        <circle cx="50" cy="52" r="29" fill="#FFE0B2" stroke="${stroke}" stroke-width="${strokeW}"/>
+        <ellipse cx="31" cy="57" rx="5" ry="3" fill="#FF8A80" opacity="0.7"/>
+        <ellipse cx="69" cy="57" rx="5" ry="3" fill="#FF8A80" opacity="0.7"/>
+        <g transform="translate(14, 68) rotate(-15)">
+          <circle cx="10" cy="10" r="8" fill="#E0F2FE" stroke="${stroke}" stroke-width="3"/>
+          <path d="M 16 16 L 24 24" stroke="${stroke}" stroke-width="4" stroke-linecap="round"/>
+          <ellipse cx="7" cy="7" rx="4" ry="2" fill="#FFFFFF" opacity="0.8" transform="rotate(-30 7 7)"/>
+        </g>
+        ${eyesMarkup}
+        ${mouthMarkup}
+      </svg>
+    `;
+  }
+
+  const COLORS = [
+    { id: 'RED', hex: '#FF4D4D', name: { bm: 'MERAH', en: 'RED' } },
+    { id: 'BLUE', hex: '#2196F3', name: { bm: 'BIRU', en: 'BLUE' } },
+    { id: 'YELLOW', hex: '#FFD600', name: { bm: 'KUNING', en: 'YELLOW' } },
+    { id: 'GREEN', hex: '#4CAF50', name: { bm: 'HIJAU', en: 'GREEN' } },
+    { id: 'ORANGE', hex: '#FF9800', name: { bm: 'OREN', en: 'ORANGE' } },
+    { id: 'PINK', hex: '#FF69B4', name: { bm: 'MERAH JAMBU', en: 'PINK' } },
+    { id: 'PURPLE', hex: '#9C27B0', name: { bm: 'UNGU', en: 'PURPLE' } }
+  ];
+
+  const TRANSLATIONS = {
+    bm: {
+      gameTitle: "Colour Match",
+      parentTitle: "Persediaan Ibu Bapa",
+      parentDesc: "Sila masukkan maklumat profil anda di bawah:",
+      childName: "NAMA ANAK",
+      childNamePlaceholder: "Cth: AISYAH",
+      childNameHint: "📌 Sila masukkan nama anak anda.",
+      familyCode: "FAMILY CODE",
+      familyCodePlaceholder: "Cth: KINDER123",
+      familyCodeHint: "📌 Sila masukkan Family Code untuk menyimpan rekod.",
+      saveProfile: "Simpan Profil",
+      homeSubtitle: "Jom Cari Warna!",
+      welcome: "Selamat datang",
+      mode5: "5 AKTIVITI",
+      mode10: "10 AKTIVITI",
+      modeFree: "MAIN BEBAS",
+      scoreboard: "Markah",
+      daily: "Hadiah",
+      collection: "Galeri",
+      switchProfile: "Profil",
+      progressLabel: "AKTIVITI",
+      currentActivityLabel: "AKTIVITI SEMASA",
+      findColor: "Cari warna",
+      goodJob: "Bagus!",
+      awesome: "Hebat!",
+      tryAgain: "Cuba Lagi!",
+      summaryTitle: "SESI SELESAI!",
+      completedActivities: "Aktiviti Selesai",
+      playAgain: "Main Lagi",
+      backHome: "Kembali",
+      backBtn: "Kembali",
+      scoreTitle: "Markah Keluarga",
+      stars: "Bintang",
+      coins: "Syiling",
+      activities: "Aktiviti",
+      discoveredColors: "Warna",
+      dailyTitle: "Hadiah Harian",
+      dailySubtitle: "Buka Hadiah Anda!",
+      dailyDesc: "Dapatkan bonus syiling dan bintang setiap hari.",
+      claimGift: "Tuntut Hadiah",
+      claimedToday: "✓ Sudah Dituntut Hari Ini!",
+      collectionTitle: "Galeri Warna",
+      unlocked: "✓ Dibuka",
+      locked: "🔒 Terkunci",
+      profileFound: "Profil dijumpai! Kemajuan dimuatkan.",
+      profileCreated: "Profil baru disimpan!",
+      defaultChildName: "Si Comel"
+    },
+    en: {
+      gameTitle: "Colour Match",
+      parentTitle: "Parent Setup",
+      parentDesc: "Please enter your profile information below:",
+      childName: "CHILD NAME",
+      childNamePlaceholder: "E.g: AISYAH",
+      childNameHint: "📌 Please enter your child's name.",
+      familyCode: "FAMILY CODE",
+      familyCodePlaceholder: "E.g: KINDER123",
+      familyCodeHint: "📌 Please enter your Family Code to save progress.",
+      saveProfile: "Save Profile",
+      homeSubtitle: "Let's Find the Colour!",
+      welcome: "Welcome",
+      mode5: "5 ACTIVITIES",
+      mode10: "10 ACTIVITIES",
+      modeFree: "FREE PLAY",
+      scoreboard: "Scoreboard",
+      daily: "Daily Gift",
+      collection: "Gallery",
+      switchProfile: "Profile",
+      progressLabel: "ACTIVITY",
+      currentActivityLabel: "CURRENT ACTIVITY",
+      findColor: "Find",
+      goodJob: "Good Job!",
+      awesome: "Awesome!",
+      tryAgain: "Try Again!",
+      summaryTitle: "SESSION COMPLETE!",
+      completedActivities: "Activities Completed",
+      playAgain: "Play Again",
+      backHome: "Back",
+      backBtn: "Back",
+      scoreTitle: "Family Scoreboard",
+      stars: "Stars",
+      coins: "Coins",
+      activities: "Activities",
+      discoveredColors: "Colours",
+      dailyTitle: "Daily Gift",
+      dailySubtitle: "Open Your Gift!",
+      dailyDesc: "Get bonus coins and stars every single day.",
+      claimGift: "Claim Gift",
+      claimedToday: "✓ Claimed Today!",
+      collectionTitle: "Colour Collection",
+      unlocked: "✓ Unlocked",
+      locked: "🔒 Locked",
+      profileFound: "Profile found! Progress loaded.",
+      profileCreated: "New profile saved!",
+      defaultChildName: "Little Detective"
+    }
+  };
+
+  const OBJECT_KEYS = [
+    'APPLE', 'BALLOON', 'BALL', 'CAR', 'FISH', 'FLOWER', 'SUN', 'STAR',
+    'UMBRELLA', 'CUP', 'ICE_CREAM', 'BUTTERFLY', 'LEAF', 'KITE', 'BIRD',
+    'CAT', 'DOG', 'BUS', 'PENCIL', 'GIFT_BOX', 'CUPCAKE', 'MUSHROOM',
+    'HEART', 'CLOUD', 'BOW', 'TOY_BLOCK', 'BAG', 'HAT', 'SHOE', 'JUICE_CUP'
+  ];
+
+  function getObjectSvg(type, colorHex) {
+    const stroke = '#2D3748';
+    const strokeW = '4';
+    
+    const eyesAndMouth = `
+      <circle cx="42" cy="48" r="3.5" fill="${stroke}"/>
+      <circle cx="58" cy="48" r="3.5" fill="${stroke}"/>
+      <circle cx="40.5" cy="46.5" r="1.2" fill="#FFFFFF"/>
+      <circle cx="56.5" cy="46.5" r="1.2" fill="#FFFFFF"/>
+      <ellipse cx="36" cy="54" rx="3.5" ry="2" fill="#FF8A80" opacity="0.6"/>
+      <ellipse cx="64" cy="54" rx="3.5" ry="2" fill="#FF8A80" opacity="0.6"/>
+      <path d="M 47 54 Q 50 57 53 54" stroke="${stroke}" stroke-width="3" stroke-linecap="round" fill="none"/>
+    `;
+
+    switch(type) {
+      case 'APPLE':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M 50 28 Q 30 15 22 38 Q 15 65 35 88 Q 50 95 50 88 Q 50 95 65 88 Q 85 65 78 38 Q 70 15 50 28 Z" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <path d="M 50 28 Q 55 18 50 10" stroke="${stroke}" stroke-width="${strokeW}" fill="none" stroke-linecap="round"/>
+          <path d="M 50 18 Q 62 12 65 22 Q 55 24 50 18 Z" fill="#4CAF50" stroke="${stroke}" stroke-width="2"/>
+          <ellipse cx="32" cy="38" rx="4" ry="8" fill="white" opacity="0.4" transform="rotate(-20 32 38)"/>
+          ${eyesAndMouth}
+        </svg>`;
+
+      case 'BALLOON':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M 50 80 Q 48 83 50 86 Q 52 83 50 80 Z" fill="${colorHex}" stroke="${stroke}" stroke-width="2"/>
+          <ellipse cx="50" cy="45" rx="30" ry="36" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <path d="M 50 85 Q 45 92 52 98" stroke="${stroke}" stroke-width="3" fill="none"/>
+          <ellipse cx="35" cy="30" rx="5" ry="10" fill="white" opacity="0.4" transform="rotate(-30 35 30)"/>
+          ${eyesAndMouth}
+        </svg>`;
+
+      case 'BALL':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <circle cx="50" cy="50" r="38" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <path d="M 22 30 Q 50 45 78 30" stroke="${stroke}" stroke-width="${strokeW}" fill="none"/>
+          <path d="M 22 70 Q 50 55 78 70" stroke="${stroke}" stroke-width="${strokeW}" fill="none"/>
+          <ellipse cx="36" cy="32" rx="6" ry="3" fill="white" opacity="0.4"/>
+          ${eyesAndMouth}
+        </svg>`;
+
+      case 'CAR':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M 15 65 L 15 52 Q 25 35 45 35 L 65 35 Q 80 42 85 52 L 85 65 Z" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <circle cx="32" cy="68" r="12" fill="#334155" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <circle cx="32" cy="68" r="4" fill="white"/>
+          <circle cx="68" cy="68" r="12" fill="#334155" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <circle cx="68" cy="68" r="4" fill="white"/>
+          <path d="M 32 40 L 48 40 L 48 50 L 26 50 Z" fill="#E0F2FE" stroke="${stroke}" stroke-width="2"/>
+        </svg>`;
+
+      case 'FISH':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M 75 50 Q 92 30 92 70 Z" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <ellipse cx="45" cy="50" rx="32" ry="24" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <circle cx="28" cy="44" r="4" fill="${stroke}"/>
+          <path d="M 40 54 Q 45 58 50 54" stroke="${stroke}" stroke-width="3" stroke-linecap="round" fill="none"/>
+        </svg>`;
+
+      case 'FLOWER':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <circle cx="50" cy="24" r="14" fill="${colorHex}" stroke="${stroke}" stroke-width="3"/>
+          <circle cx="76" cy="50" r="14" fill="${colorHex}" stroke="${stroke}" stroke-width="3"/>
+          <circle cx="50" cy="76" r="14" fill="${colorHex}" stroke="${stroke}" stroke-width="3"/>
+          <circle cx="24" cy="50" r="14" fill="${colorHex}" stroke="${stroke}" stroke-width="3"/>
+          <circle cx="50" cy="50" r="16" fill="#FFD600" stroke="${stroke}" stroke-width="${strokeW}"/>
+          ${eyesAndMouth}
+        </svg>`;
+
+      case 'SUN':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M 50 10 L 50 20 M 50 80 L 50 90 M 10 50 L 20 50 M 80 50 L 90 50 M 22 22 L 30 30 M 70 70 L 78 78 M 22 78 L 30 70 M 70 30 L 78 22" stroke="${stroke}" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="50" cy="50" r="28" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          ${eyesAndMouth}
+        </svg>`;
+
+      case 'STAR':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M 50 12 L 62 38 L 90 42 L 68 62 L 74 90 L 50 76 L 26 90 L 32 62 L 10 42 L 38 38 Z" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}" stroke-linejoin="round"/>
+          ${eyesAndMouth}
+        </svg>`;
+
+      case 'ICE_CREAM':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M 32 50 L 50 90 L 68 50 Z" fill="#D97706" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <circle cx="50" cy="42" r="24" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <circle cx="50" cy="18" r="8" fill="#EF4444" stroke="${stroke}" stroke-width="2"/>
+          ${eyesAndMouth}
+        </svg>`;
+
+      case 'MUSHROOM':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M 36 55 L 36 82 Q 36 88 50 88 Q 64 88 64 82 L 64 55 Z" fill="#FFF" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <path d="M 18 55 Q 50 15 82 55 Z" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <circle cx="36" cy="38" r="6" fill="white"/>
+          <circle cx="64" cy="38" r="6" fill="white"/>
+          ${eyesAndMouth}
+        </svg>`;
+
+      case 'CUPCAKE':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M 28 50 L 34 85 L 66 85 L 72 50 Z" fill="#FDE047" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <path d="M 22 52 Q 50 20 78 52 Q 50 45 22 52 Z" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          ${eyesAndMouth}
+        </svg>`;
+
+      case 'GIFT_BOX':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <rect x="22" y="42" width="56" height="44" rx="6" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <rect x="18" y="32" width="64" height="14" rx="4" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          <rect x="44" y="32" width="12" height="54" fill="#FFD600"/>
+        </svg>`;
+
+      case 'HEART':
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <path d="M 50 85 Q 15 55 20 32 Q 25 15 42 22 Q 50 30 50 30 Q 50 30 58 22 Q 75 15 80 32 Q 85 55 50 85 Z" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          ${eyesAndMouth}
+        </svg>`;
+
+      default:
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+          <rect x="20" y="20" width="60" height="60" rx="18" fill="${colorHex}" stroke="${stroke}" stroke-width="${strokeW}"/>
+          ${eyesAndMouth}
+        </svg>`;
+    }
+  }
+
+  let audioCtx = null;
+  let soundEnabled = true;
+
+  function initAudio() {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch(e) {}
+    }
+  }
+
+  function toggleAudio() {
+    soundEnabled = !soundEnabled;
+    const btn = document.getElementById('btn-audio-toggle');
+    if (btn) btn.innerText = soundEnabled ? '🔊' : '🔇';
+  }
+
+  function playTone(freq, type, duration) {
+    if (!soundEnabled) return;
+    initAudio();
+    if (!audioCtx) return;
+    try {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.14, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch(e){}
+  }
+
+  function playSound(name) {
+    if (!soundEnabled) return;
+    if (name === 'pop') playTone(600, 'sine', 0.08);
+    else if (name === 'correct') {
+      playTone(523.25, 'triangle', 0.08);
+      setTimeout(() => playTone(659.25, 'triangle', 0.08), 70);
+      setTimeout(() => playTone(783.99, 'triangle', 0.12), 140);
+    } else if (name === 'wrong') {
+      playTone(280, 'sawtooth', 0.12);
+      setTimeout(() => playTone(200, 'sawtooth', 0.15), 100);
+    } else if (name === 'coin') {
+      playTone(987.77, 'sine', 0.08);
+    }
+  }
+
+  let currentLang = 'bm';
+  let playerProfile = {
+    childName: '',
+    familyCode: '',
+    stars: 0,
+    coins: 0,
+    activitiesCompleted: 0,
+    discoveredColors: [],
+    lastDailyGiftDate: ''
+  };
+
+  let gameMode = '5';
+  let currentActivityIndex = 0;
+  let totalActivitiesInSession = 5;
+  let sessionStarsEarned = 0;
+  let sessionCoinsEarned = 0;
+
+  let recentFingerprints = [];
+  let objectCooldown = [];
+  let colorCooldown = [];
+
+  let currentTargetColor = null;
+  let isAnswerLocked = false;
+
+  function getProfileStorageKey(name, code) {
+    const cleanName = (name || '').trim().toUpperCase() || 'DEFAULT';
+    const cleanCode = (code || '').trim().toUpperCase() || 'PUBLIC';
+    return `colour_match_profile_${cleanCode}_${cleanName}`;
+  }
+
+  function saveProfileData() {
+    try {
+      const key = getProfileStorageKey(playerProfile.childName, playerProfile.familyCode);
+      localStorage.setItem(key, JSON.stringify(playerProfile));
+      localStorage.setItem('colour_match_last_active_key', key);
+    } catch(e) {}
+  }
+
+  function loadProfileData() {
+    try {
+      const lastKey = localStorage.getItem('colour_match_last_active_key') || localStorage.getItem('chibi_last_active_key');
+      if (lastKey) {
+        const saved = localStorage.getItem(lastKey);
+        if (saved) {
+          playerProfile = { ...playerProfile, ...JSON.parse(saved) };
+        }
+      }
+      const savedLang = localStorage.getItem('colour_match_lang');
+      if (savedLang && (savedLang === 'bm' || savedLang === 'en')) {
+        currentLang = savedLang;
+      }
+    } catch(e) {}
+  }
+
+  function fetchProfileLocal(name, code) {
+    try {
+      const key = getProfileStorageKey(name, code);
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        playerProfile = { ...playerProfile, ...JSON.parse(saved) };
+        localStorage.setItem('colour_match_last_active_key', key);
+        return true;
+      }
+    } catch(e) {}
+    return false;
+  }
+
+  function shuffle(array) {
+    let arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function generateNewActivity() {
+    let availableColors = COLORS.filter(c => !colorCooldown.includes(c.id));
+    if (availableColors.length === 0) {
+      availableColors = COLORS;
+      colorCooldown = [];
+    }
+    const targetColorObj = availableColors[Math.floor(Math.random() * availableColors.length)];
+
+    const optionCount = 4;
+    let availableObjects = OBJECT_KEYS.filter(o => !objectCooldown.includes(o));
+    if (availableObjects.length < optionCount) {
+      availableObjects = OBJECT_KEYS;
+      objectCooldown = [];
+    }
+
+    const selectedObjs = shuffle(availableObjects).slice(0, optionCount);
+    const correctObjKey = selectedObjs[0];
+
+    const distractorColors = COLORS.filter(c => c.id !== targetColorObj.id);
+    const chosenDistractors = shuffle(distractorColors).slice(0, optionCount - 1);
+
+    let options = [
+      { key: correctObjKey, color: targetColorObj, isCorrect: true }
+    ];
+
+    for (let i = 0; i < optionCount - 1; i++) {
+      options.push({
+        key: selectedObjs[i + 1],
+        color: chosenDistractors[i],
+        isCorrect: false
+      });
+    }
+
+    options = shuffle(options);
+
+    const fingerprint = `${targetColorObj.id}_${options.map(o => o.key + ':' + o.color.id).join('_')}`;
+    if (recentFingerprints.includes(fingerprint) && recentFingerprints.length < 50) {
+      return generateNewActivity();
+    }
+
+    recentFingerprints.push(fingerprint);
+    if (recentFingerprints.length > 80) recentFingerprints.shift();
+
+    colorCooldown.push(targetColorObj.id);
+    if (colorCooldown.length > 3) colorCooldown.shift();
+
+    selectedObjs.forEach(o => {
+      if (!objectCooldown.includes(o)) objectCooldown.push(o);
+    });
+    if (objectCooldown.length > 12) objectCooldown = objectCooldown.slice(-12);
+
+    return {
+      targetColor: targetColorObj,
+      options: options
+    };
+  }
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    try {
+      localStorage.setItem('colour_match_lang', lang);
+    } catch(e) {}
+
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+    
+    const bmBtn = document.getElementById('lang-bm-btn');
+    const enBtn = document.getElementById('lang-en-btn');
+    const bmSetupBtn = document.getElementById('lang-bm-setup-btn');
+    const enSetupBtn = document.getElementById('lang-en-setup-btn');
+
+    if (lang === 'bm') {
+      if (bmBtn) bmBtn.classList.add('active');
+      if (bmSetupBtn) bmSetupBtn.classList.add('active');
+    } else {
+      if (enBtn) enBtn.classList.add('active');
+      if (enSetupBtn) enSetupBtn.classList.add('active');
+    }
+
+    const t = TRANSLATIONS[lang];
+    const displayName = playerProfile.childName.trim() || t.defaultChildName;
+
+    // Headers & Title
+    document.getElementById('main-title').innerText = t.gameTitle;
+    document.title = `${t.gameTitle} - Kinder Klub`;
+
+    // Parent Setup Screen
+    document.getElementById('txt-parent-title').innerText = t.parentTitle;
+    document.getElementById('txt-parent-desc').innerText = t.parentDesc;
+    document.getElementById('lbl-child-name').innerText = t.childName;
+    document.getElementById('input-child-name').placeholder = t.childNamePlaceholder;
+    document.getElementById('txt-child-name-hint').innerText = t.childNameHint;
+    document.getElementById('lbl-family-code').innerText = t.familyCode;
+    document.getElementById('input-family-code').placeholder = t.familyCodePlaceholder;
+    document.getElementById('txt-family-code-hint').innerText = t.familyCodeHint;
+    document.getElementById('btn-save-profile').innerText = t.saveProfile;
+    document.getElementById('btn-profile-back').innerText = t.backBtn;
+
+    // Home Screen
+    document.getElementById('txt-home-subtitle').innerText = t.homeSubtitle;
+    document.getElementById('txt-home-welcome').innerText = `${t.welcome}, ${displayName}!`;
+    document.getElementById('txt-mode-5').innerText = t.mode5;
+    document.getElementById('txt-mode-10').innerText = t.mode10;
+    document.getElementById('txt-mode-free').innerText = t.modeFree;
+    document.getElementById('txt-btn-scoreboard').innerText = t.scoreboard;
+    document.getElementById('txt-btn-daily').innerText = t.daily;
+    document.getElementById('txt-btn-collection').innerText = t.collection;
+    document.getElementById('txt-btn-switch').innerText = t.switchProfile;
+
+    // Gameplay Screen
+    document.getElementById('txt-progress-label').innerText = (gameMode === 'free') ? t.currentActivityLabel : t.progressLabel;
+    if (currentTargetColor) {
+      const targetNameText = currentTargetColor.name[currentLang];
+      document.getElementById('target-color-name').innerText = targetNameText;
+      document.getElementById('chibi-speech').innerText = `${t.findColor} ${targetNameText}!`;
+    }
+
+    // Summary Screen
+    document.getElementById('txt-summary-title').innerText = t.summaryTitle;
+    document.getElementById('txt-summary-activities').innerText = t.completedActivities;
+    document.getElementById('txt-summary-stars-unit').innerText = t.stars;
+    document.getElementById('txt-summary-coins-unit').innerText = t.coins;
+    document.getElementById('btn-play-again').innerText = t.playAgain;
+    document.getElementById('btn-summary-home').innerText = t.backHome;
+
+    // Scoreboard Screen
+    document.getElementById('txt-scoreboard-title').innerText = t.scoreTitle;
+    document.getElementById('txt-score-stars-label').innerText = t.stars;
+    document.getElementById('txt-score-coins-label').innerText = t.coins;
+    document.getElementById('txt-score-activities-label').innerText = t.activities;
+    document.getElementById('txt-score-discovered-label').innerText = t.discoveredColors;
+    document.getElementById('btn-score-back').innerText = t.backBtn;
+
+    // Daily Gift Screen (Termasuk teks butang tuntut hadiah)
+    document.getElementById('txt-daily-title').innerText = t.dailyTitle;
+    document.getElementById('txt-daily-subtitle').innerText = t.dailySubtitle;
+    document.getElementById('txt-daily-desc').innerText = t.dailyDesc;
+    document.getElementById('txt-claim-daily-label').innerText = t.claimGift;
+    document.getElementById('daily-claimed-msg').innerText = t.claimedToday;
+
+    // Collection Screen
+    document.getElementById('txt-collection-title').innerText = t.collectionTitle;
+    document.getElementById('btn-collection-back').innerText = t.backBtn;
+
+    updateHeaderStats();
+    renderCollectionGrid();
+  }
+
+  function setMascotExpression(containerId, expression) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.className = `chibi-container mascot-${expression}`;
+    container.innerHTML = getChibiAvatarSvg(expression);
+  }
+
+  function showScreen(screenId) {
+    playSound('pop');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById(screenId);
+    if (target) {
+      target.classList.add('active');
+    }
+
+    updateHeaderStats();
+
+    const t = TRANSLATIONS[currentLang];
+
+    if (screenId === 'screen-home') {
+      setMascotExpression('chibi-home-avatar', 'idle');
+      const displayName = playerProfile.childName.trim() || t.defaultChildName;
+      document.getElementById('txt-home-welcome').innerText = `${t.welcome}, ${displayName}!`;
+    } else if (screenId === 'screen-scoreboard') {
+      document.getElementById('score-child-name').innerText = playerProfile.childName.trim() || t.defaultChildName;
+      document.getElementById('score-family-code').innerText = `Code: ${playerProfile.familyCode.trim() || '-'}`;
+      document.getElementById('score-stars-val').innerText = playerProfile.stars;
+      document.getElementById('score-coins-val').innerText = playerProfile.coins;
+      document.getElementById('score-activities-val').innerText = playerProfile.activitiesCompleted;
+      document.getElementById('score-discovered-val').innerText = `${playerProfile.discoveredColors.length} / 7`;
+    } else if (screenId === 'screen-daily-gift') {
+      // Periksa status tuntutan hadiah hari ini semasa membuka skrin
+      const today = new Date().toISOString().split('T')[0];
+      const claimBtn = document.getElementById('btn-claim-daily');
+      const claimedMsg = document.getElementById('daily-claimed-msg');
+      if (playerProfile.lastDailyGiftDate === today) {
+        claimBtn.style.display = 'none';
+        claimedMsg.style.display = 'block';
+      } else {
+        claimBtn.style.display = 'flex';
+        claimedMsg.style.display = 'none';
+      }
+    }
+  }
+
+  function updateHeaderStats() {
+    document.getElementById('home-stars').innerText = playerProfile.stars;
+    document.getElementById('home-coins').innerText = playerProfile.coins;
+    document.getElementById('game-stars').innerText = playerProfile.stars;
+    document.getElementById('game-coins').innerText = playerProfile.coins;
+  }
+
+  function saveParentProfile() {
+    const nameInput = document.getElementById('input-child-name').value.trim().toUpperCase();
+    const codeInput = document.getElementById('input-family-code').value.trim().toUpperCase();
+    const statusBox = document.getElementById('profile-status');
+    const t = TRANSLATIONS[currentLang];
+
+    if (!nameInput || !codeInput) {
+      playerProfile.childName = nameInput;
+      playerProfile.familyCode = codeInput;
+      saveProfileData();
+      setLanguage(currentLang);
+      showScreen('screen-home');
+      return;
+    }
+
+    const exists = fetchProfileLocal(nameInput, codeInput);
+
+    if (exists) {
+      statusBox.className = "status-msg success";
+      statusBox.innerText = t.profileFound;
+    } else {
+      playerProfile.childName = nameInput;
+      playerProfile.familyCode = codeInput;
+      saveProfileData();
+      statusBox.className = "status-msg info";
+      statusBox.innerText = t.profileCreated;
+    }
+
+    statusBox.style.display = 'block';
+
+    setTimeout(() => {
+      statusBox.style.display = 'none';
+      setLanguage(currentLang);
+      showScreen('screen-home');
+    }, 900);
+  }
+
+  function startMode(mode) {
+    gameMode = mode;
+    currentActivityIndex = 1;
+    sessionStarsEarned = 0;
+    sessionCoinsEarned = 0;
+
+    if (mode === '5') totalActivitiesInSession = 5;
+    else if (mode === '10') totalActivitiesInSession = 10;
+    else totalActivitiesInSession = 999;
+
+    showScreen('screen-gameplay');
+    loadNextActivity();
+  }
+
+  function restartCurrentMode() {
+    startMode(gameMode);
+  }
+
+  function loadNextActivity() {
+    isAnswerLocked = false;
+    setMascotExpression('chibi-game-avatar', 'thinking');
+
+    const t = TRANSLATIONS[currentLang];
+    if (gameMode === 'free') {
+      document.getElementById('txt-progress-label').innerText = t.currentActivityLabel;
+      document.getElementById('current-progress-text').innerText = `${currentActivityIndex}`;
+    } else {
+      document.getElementById('txt-progress-label').innerText = t.progressLabel;
+      document.getElementById('current-progress-text').innerText = `${currentActivityIndex} / ${totalActivitiesInSession}`;
+    }
+
+    const activity = generateNewActivity();
+    currentTargetColor = activity.targetColor;
+
+    const targetPill = document.getElementById('target-color-indicator');
+    targetPill.style.backgroundColor = activity.targetColor.hex;
+
+    const targetNameText = activity.targetColor.name[currentLang];
+    document.getElementById('target-color-name').innerText = targetNameText;
+    document.getElementById('chibi-speech').innerText = `${t.findColor} ${targetNameText}!`;
+
+    const grid = document.getElementById('options-container');
+    grid.innerHTML = '';
+
+    activity.options.forEach((opt) => {
+      const card = document.createElement('div');
+      card.className = 'option-card';
+      card.innerHTML = getObjectSvg(opt.key, opt.color.hex);
+      card.onclick = () => handleAnswerSelect(card, opt);
+      grid.appendChild(card);
+    });
+  }
+
+  function handleAnswerSelect(cardElem, option) {
+    if (isAnswerLocked) return;
+    isAnswerLocked = true;
+
+    if (option.isCorrect) {
+      playSound('correct');
+
+      cardElem.classList.add('correct-anim');
+      setMascotExpression('chibi-game-avatar', 'happy');
+      
+      const t = TRANSLATIONS[currentLang];
+      const praises = [t.goodJob, t.awesome];
+      document.getElementById('chibi-speech').innerText = praises[Math.floor(Math.random() * praises.length)];
+
+      playerProfile.stars += 1;
+      playerProfile.coins += 5;
+      sessionStarsEarned += 1;
+      sessionCoinsEarned += 5;
+      playerProfile.activitiesCompleted += 1;
+
+      if (!playerProfile.discoveredColors.includes(currentTargetColor.id)) {
+        playerProfile.discoveredColors.push(currentTargetColor.id);
+      }
+
+      saveProfileData();
+      updateHeaderStats();
+
+      setTimeout(() => {
+        if (gameMode !== 'free' && currentActivityIndex >= totalActivitiesInSession) {
+          finishSession();
+        } else {
+          currentActivityIndex++;
+          loadNextActivity();
+        }
+      }, 950);
+
+    } else {
+      playSound('wrong');
+      cardElem.classList.add('wrong-anim');
+      setMascotExpression('chibi-game-avatar', 'retry');
+      document.getElementById('chibi-speech').innerText = TRANSLATIONS[currentLang].tryAgain;
+
+      setTimeout(() => {
+        if (gameMode !== 'free' && currentActivityIndex >= totalActivitiesInSession) {
+          finishSession();
+        } else {
+          currentActivityIndex++;
+          loadNextActivity();
+        }
+      }, 900);
+    }
+  }
+
+  function finishSession() {
+    document.getElementById('summary-count').innerText = (gameMode === 'free') ? currentActivityIndex : totalActivitiesInSession;
+    document.getElementById('summary-stars').innerText = sessionStarsEarned;
+    document.getElementById('summary-coins').innerText = sessionCoinsEarned;
+    showScreen('screen-summary');
+  }
+
+  function claimDailyGift() {
+    const today = new Date().toISOString().split('T')[0];
+    if (playerProfile.lastDailyGiftDate === today) {
+      document.getElementById('btn-claim-daily').style.display = 'none';
+      document.getElementById('daily-claimed-msg').style.display = 'block';
+      return;
+    }
+
+    playSound('coin');
+    playerProfile.stars += 3;
+    playerProfile.coins += 20;
+    playerProfile.lastDailyGiftDate = today;
+    saveProfileData();
+    updateHeaderStats();
+
+    document.getElementById('btn-claim-daily').style.display = 'none';
+    document.getElementById('daily-claimed-msg').style.display = 'block';
+  }
+
+  function renderCollectionGrid() {
+    const container = document.getElementById('collection-grid');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const t = TRANSLATIONS[currentLang];
+
+    COLORS.forEach(c => {
+      const isDiscovered = playerProfile.discoveredColors.includes(c.id);
+      const card = document.createElement('div');
+      card.className = `item-card ${isDiscovered ? '' : 'locked'}`;
+      card.innerHTML = `
+        <div style="width: clamp(38px, 6vw, 50px); height: clamp(38px, 6vw, 50px); border-radius: 50%; background: ${c.hex}; border: 3px solid #334155; margin-bottom: 6px; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.15);"></div>
+        <span style="font-size: clamp(12px, 1.8vw, 15px); font-weight: 800;">${c.name[currentLang]}</span>
+        <span style="font-size: clamp(10px, 1.4vw, 12px); color: #64748B;">${isDiscovered ? t.unlocked : t.locked}</span>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function initApp() {
+    loadProfileData();
+
+    const nameField = document.getElementById('input-child-name');
+    const codeField = document.getElementById('input-family-code');
+    if (nameField) nameField.value = playerProfile.childName;
+    if (codeField) codeField.value = playerProfile.familyCode;
+
+    setLanguage(currentLang);
+    showScreen('screen-home');
+  }
+
+  window.addEventListener('DOMContentLoaded', initApp);
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    initApp();
+  }
+</script>
+</body>
+</html>
